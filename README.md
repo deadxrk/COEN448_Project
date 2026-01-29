@@ -28,3 +28,9 @@ This project was developed as part of a course lab to practice software design, 
 ---
 
 ## Project Structure
+
+## How to run
+
+Use these commands on your terminal inside folder that contains pom.xml
+- mvn clean test
+- mvn -q exec:java
