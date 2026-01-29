@@ -18,8 +18,9 @@ public class Main{
                 System.out.print(output);
                 if(!output.endsWith("\n")) {System.out.print("\n");}
             }
+            sc.close();
         }
 
-        sc.close();
+        
     }
 }
