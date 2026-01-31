@@ -4,3 +4,7 @@ target/
 .vscode/
 *.iml
 out/
+
+.classpath
+.project
+.settings/
