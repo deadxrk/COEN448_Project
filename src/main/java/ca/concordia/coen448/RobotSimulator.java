@@ -142,10 +142,10 @@ public class RobotSimulator {
             int nextCol = col;
 
             switch (dir) {
-                case NORTH: nextCol++; break; // matches example
-                case EAST:  nextRow++; break;
-                case SOUTH: nextCol--; break;
-                case WEST:  nextRow--; break;
+                case NORTH: nextRow++; break; // matches example
+                case EAST:  nextCol++; break;
+                case SOUTH: nextRow--; break;
+                case WEST:  nextCol--; break;
                 default: break;
             }
 
