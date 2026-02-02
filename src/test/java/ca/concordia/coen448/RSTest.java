@@ -58,6 +58,7 @@ public class RSTest {
 
     @Test
     void TestRS_Move(){
+
         RobotSimulator RS=new RobotSimulator();
         
         String cmd[]={"M 19","R","M 10","R","M 15","R",
@@ -85,6 +86,73 @@ public class RSTest {
             RS.handleLine(cmd[i]);
             assert(RS.getRow()==exp_row[i]
             && RS.getCol()==exp_col[i]);
+        }
+    }
+
+    @Test
+    void TestRS_init(){
+        RobotSimulator RS=new RobotSimulator();
+
+        RS.handleLine("I 10");
+
+        Floor floor = RS.getFloor();
+
+        assert(floor.getSize()==10);
+    }
+
+    @Test
+    void TestRS_marktest(){
+        RobotSimulator RS=new RobotSimulator();
+
+        RS.handleLine("D");
+
+        RS.handleLine("M 4");
+
+        int[] cols={0,1,2,3,4};
+        int[] rows={0,1,2,3,4};
+
+        for(int r:rows){
+            assert(RS.getFloor().getCell(r,0)==1);
+        }
+
+        RS.handleLine("R");
+        RS.handleLine("M 4");
+
+        for(int c:cols){
+            assert(RS.getFloor().getCell(4,c)==1);
+        }
+
+        RS.handleLine("U");
+
+        RS.handleLine("R");
+        RS.handleLine("M 4");
+
+        for(int r=0;r<4;++r){
+            assert(RS.getFloor().getCell(r,4)==0);
+        }
+        assert(RS.getFloor().getCell(4,4)==1);
+
+        RS.handleLine("R");
+        RS.handleLine("M 4");
+
+        for(int c=1;c<=4;++c){
+            assert(RS.getFloor().getCell(0,c)==0);
+        }
+        assert(RS.getFloor().getCell(0,0)==1);
+
+        // retrace marked vertical line with pen up
+        RS.handleLine("R");
+        RS.handleLine("M 4");
+        for(int r:rows){
+            assert(RS.getFloor().getCell(r,0)==1);
+        }
+
+        // retrace marked horizontal line with pen down
+        RS.handleLine("D");
+        RS.handleLine("R");
+        RS.handleLine("M 4");
+        for(int c:cols){
+            assert(RS.getFloor().getCell(4,c)==1);
         }
     }
 
