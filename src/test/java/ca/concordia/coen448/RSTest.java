@@ -101,7 +101,7 @@ public class RSTest {
     }
 
     @Test
-    void TestRS_marktest(){
+    void TestRS_marktest(){ //refactored with context: prompt GB1
         RobotSimulator RS=new RobotSimulator();
 
         RS.handleLine("D");
