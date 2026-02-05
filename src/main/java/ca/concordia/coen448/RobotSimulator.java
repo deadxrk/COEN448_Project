@@ -39,7 +39,7 @@ public class RobotSimulator {
     public Floor getFloor() { return floor; }
 
     public String statusString() {
-        return "Position: " + row + ", " + col +
+        return "Position: " + col + ", " + row +
                 " - Pen: " + (penDown ? "down" : "up") +
                 " - Facing: " + dir.name().toLowerCase() + "\n";
     }
