@@ -28,24 +28,24 @@ public class Floor {
         return s; // for 2+ digits
     }
 
-    public String toDisplayString() {
+    public String toDisplayString() { //refactored using codex see gb2 prompt
         StringBuilder sb = new StringBuilder();
 
-        // column header
-        sb.append("   ");
-        for (int c = 0; c < size; c++) {
-            sb.append(pad2(c));
-        }
-        sb.append("\n");
-
-        // rows
-        for (int r = 0; r < size; r++) {
+        // rows (mirror vertically so row 0 is at the bottom)
+        for (int r = size - 1; r >= 0; r--) {
             sb.append(pad2(r)).append(" ");
             for (int c = 0; c < size; c++) {
                 sb.append(grid[r][c] == 1 ? " *" : "  ");
             }
             sb.append("\n");
         }
+
+        // column header at bottom
+        sb.append("   ");
+        for (int c = 0; c < size; c++) {
+            sb.append(pad2(c));
+        }
+        sb.append("\n");
 
         return sb.toString();
     }
