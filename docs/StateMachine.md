@@ -1,3 +1,5 @@
+```mermaid
+
 stateDiagram-v2
     [*] --> Initialized : new RobotSimulator()
     
@@ -22,3 +24,5 @@ stateDiagram-v2
     
     PenUp --> [*] : Q
     PenDown --> [*] : Q
+
+```
