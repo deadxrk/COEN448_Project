@@ -105,6 +105,31 @@ public class RSTest {
     }
 
     @Test
+    void TestRS_Quit(){
+        RobotSimulator RS = new RobotSimulator();
+
+        assert(RS.shouldQuit() == false);
+
+        String output = RS.handleLine("Q");
+
+        assert(RS.shouldQuit() == true);
+        assert(output.equals(""));
+    }
+
+    @Test
+    void TestRS_FailureCases(){
+        RobotSimulator RS = new RobotSimulator();
+
+        assert(RS.handleLine("X").equals("Error: unknown command\n"));
+        assert(RS.handleLine("I").equals("Error: I needs a number, like: I 10\n"));
+        assert(RS.handleLine("I abc").equals("Error: invalid number for I\n"));
+        assert(RS.handleLine("I 0").equals("Error: n must be > 0\n"));
+        assert(RS.handleLine("M").equals("Error: M needs steps, like: M 4\n"));
+        assert(RS.handleLine("M abc").equals("Error: invalid number for M\n"));
+        assert(RS.handleLine("M -1").equals("Error: steps must be >= 0\n"));
+    }
+
+    @Test
     void TestRS_marktest(){ //refactored with context: prompt GB1
         RobotSimulator RS=new RobotSimulator();
 
@@ -182,5 +207,55 @@ public class RSTest {
 
         assertEquals(expectedDisplay.replace("\\n", "\n"), actualDisplay);
     }
+
+    @ParameterizedTest
+    @CsvSource(
+        delimiter = '|',
+        quoteCharacter = '\'',
+        value = {
+            "'C'|'Position: 0, 0 - Pen: up - Facing: north\\n'",
+            "'D;M 2;C'|'Position: 2, 0 - Pen: down - Facing: north\\n'",
+            "'R;M 3;C'|'Position: 0, 3 - Pen: up - Facing: east\\n'",
+            "'D;R;M 2;L;M 1;C'|'Position: 1, 2 - Pen: down - Facing: north\\n'"
+        }
+    )
+    void TestRS_StatusPrint(String commandSeries, String expectedStatus){
+        RobotSimulator RS = new RobotSimulator();
+
+        String[] commands = commandSeries.split(";");
+        String actualStatus = "";
+
+        for(String command : commands){
+            actualStatus = RS.handleLine(command);
+        }
+
+        assertEquals(expectedStatus.replace("\\n", "\n"), actualStatus);
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        delimiter = '|',
+        quoteCharacter = '\'',
+        value = {
+            "'I 5;D;M 2'|'=== Replay start ===\\n> I 5\\n> D\\n> M 2\\n--- Final state after replay ---\\nPosition: 2, 0 - Pen: down - Facing: north\\n 4           \\n 3           \\n 2  *        \\n 1  *        \\n 0  *        \\n    0 1 2 3 4\\n=== Replay end ===\\n'",
+            "'I 5;D;M 1;U;R;M 2'|'=== Replay start ===\\n> I 5\\n> D\\n> M 1\\n> U\\n> R\\n> M 2\\n--- Final state after replay ---\\nPosition: 1, 2 - Pen: up - Facing: east\\n 4           \\n 3           \\n 2           \\n 1  *        \\n 0  *        \\n    0 1 2 3 4\\n=== Replay end ===\\n'"
+        }
+    )
+    void TestRS_HistoryPrint(String commandSeries, String expectedHistory){
+        RobotSimulator RS = new RobotSimulator();
+
+        String[] commands = commandSeries.split(";");
+
+        for(String command : commands){
+            RS.handleLine(command);
+        }
+
+        String actualHistory = RS.handleLine("H");
+
+        assertEquals(expectedHistory.replace("\\n", "\n"), actualHistory);
+}
+
+
+
 
 }
