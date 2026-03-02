@@ -1,6 +1,10 @@
 package ca.concordia.coen448;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 public class RSTest {
     
@@ -154,6 +158,29 @@ public class RSTest {
         for(int c:cols){
             assert(RS.getFloor().getCell(4,c)==1);
         }
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+        delimiter = '|',
+        quoteCharacter = '\'',
+        value = {
+            "'I 5;P'|' 4           \\n 3           \\n 2           \\n 1           \\n 0           \\n    0 1 2 3 4\\n'",
+            "'I 5;D;M 2;P'|' 4           \\n 3           \\n 2  *        \\n 1  *        \\n 0  *        \\n    0 1 2 3 4\\n'",
+            "'I 5;D;M 2;R;M 1;P'|' 4           \\n 3           \\n 2  * *      \\n 1  *        \\n 0  *        \\n    0 1 2 3 4\\n'"
+        }
+    )
+    void TestRS_DisplayPrint(String commandSeries, String expectedDisplay){
+        RobotSimulator RS = new RobotSimulator();
+
+        String[] commands = commandSeries.split(";");
+        String actualDisplay = "";
+
+        for(String command : commands){
+            actualDisplay = RS.handleLine(command);
+        }
+
+        assertEquals(expectedDisplay.replace("\\n", "\n"), actualDisplay);
     }
 
 }
