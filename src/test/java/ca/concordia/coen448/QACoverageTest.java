@@ -294,3 +294,4 @@ public class QACoverageTest {
         assertEquals(Direction.NORTH, Direction.WEST.turnRight());
     }
 }
+
