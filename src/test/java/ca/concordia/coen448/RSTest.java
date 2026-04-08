@@ -1,6 +1,7 @@
 package ca.concordia.coen448;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,12 +18,12 @@ public class RSTest {
         //initial direction is assumed to be NORTH
         for(Direction cur:leftTurnArr){
             RS.handleLine("L");
-            assert(RS.getDirection()==cur);
+            assertEquals(cur, RS.getDirection());
         }
         //sloppy, but test for both symbols
         for(Direction cur:leftTurnArr){
             RS.handleLine("l");
-            assert(RS.getDirection()==cur);
+            assertEquals(cur, RS.getDirection());
         }
         return;
     }
@@ -36,12 +37,12 @@ public class RSTest {
         //initial direction is assumed to be NORTH
         for(Direction cur:rightTurnArr){
             RS.handleLine("R");
-            assert(RS.getDirection()==cur);
+            assertEquals(cur, RS.getDirection());
         }
         //sloppy, but test for both symbols
         for(Direction cur:rightTurnArr){
             RS.handleLine("r");
-            assert(RS.getDirection()==cur);
+            assertEquals(cur, RS.getDirection());;
         }
         return;
     }
@@ -49,15 +50,15 @@ public class RSTest {
     @Test
     void TestRS_PenState(){
         RobotSimulator RS=new RobotSimulator();
-        assert(RS.isPenDown()==false);
+        assertFalse(RS.isPenDown());
         RS.handleLine("D");
         assert(RS.isPenDown()==true);
         RS.handleLine("U");
-        assert(RS.isPenDown()==false);
+        assertFalse(RS.isPenDown());
         RS.handleLine("d");
         assert(RS.isPenDown()==true);
         RS.handleLine("u");
-        assert(RS.isPenDown()==false);
+        assertFalse(RS.isPenDown());
     }
 
     @Test
@@ -271,6 +272,89 @@ public class RSTest {
         assert(RS.getFloor().getCell(3, 2)==0);
         assert(RS.getFloor().getCell(4, 2)==0);
     }
+
+    @Test
+void TestRS_InitResetsEverything() {
+    RobotSimulator rs = new RobotSimulator();
+
+    rs.handleLine("D");
+    rs.handleLine("M 3");
+    rs.handleLine("R");
+    rs.handleLine("M 2");
+
+    assertEquals(3, rs.getRow());
+    assertEquals(2, rs.getCol());
+    assertTrue(rs.isPenDown());
+
+    rs.handleLine("I 5");
+
+    assertEquals(5, rs.getFloor().getSize());
+    assertEquals(0, rs.getRow());
+    assertEquals(0, rs.getCol());
+    assertFalse(rs.isPenDown());
+    assertEquals(Direction.NORTH, rs.getDirection());
+    assertFalse(rs.shouldQuit());
+
+    for (int r = 0; r < 5; r++) {
+        for (int c = 0; c < 5; c++) {
+            assertEquals(0, rs.getFloor().getCell(r, c),
+                    "Floor should be cleared after initialization");
+        }
+    }
+}
+
+@Test
+void TestRS_HistoryReplayIsStable() {
+    RobotSimulator rs = new RobotSimulator();
+
+    rs.handleLine("I 5");
+    rs.handleLine("D");
+    rs.handleLine("M 2");
+    rs.handleLine("R");
+    rs.handleLine("M 1");
+
+    String firstReplay = rs.handleLine("H");
+    String secondReplay = rs.handleLine("H");
+
+    assertEquals(firstReplay, secondReplay);
+    assertTrue(firstReplay.contains("=== Replay start ==="));
+    assertTrue(firstReplay.contains("> I 5"));
+    assertTrue(firstReplay.contains("> D"));
+    assertTrue(firstReplay.contains("> M 2"));
+    assertTrue(firstReplay.contains("> R"));
+    assertTrue(firstReplay.contains("> M 1"));
+    assertTrue(firstReplay.contains("=== Replay end ==="));
+}
+
+@Test
+void TestRS_HistoryAfterReinitialize() {
+    RobotSimulator rs = new RobotSimulator();
+
+    rs.handleLine("I 5");
+    rs.handleLine("D");
+    rs.handleLine("M 2");
+    rs.handleLine("I 3");
+    rs.handleLine("D");
+    rs.handleLine("M 1");
+
+    String replay = rs.handleLine("H");
+
+    assertTrue(replay.contains("> I 5"));
+    assertTrue(replay.contains("> I 3"));
+    assertTrue(replay.contains("Position: 1, 0 - Pen: down - Facing: north"));
+    assertTrue(replay.contains("=== Replay end ==="));
+
+    // Verify current simulator state after reinitialize path
+    assertEquals(3, rs.getFloor().getSize());
+    assertEquals(1, rs.getRow());
+    assertEquals(0, rs.getCol());
+    assertTrue(rs.isPenDown());
+    assertEquals(Direction.NORTH, rs.getDirection());
+
+    assertEquals(1, rs.getFloor().getCell(0, 0));
+    assertEquals(1, rs.getFloor().getCell(1, 0));
+    assertEquals(0, rs.getFloor().getCell(2, 0));
+}
 
     @ParameterizedTest
     @CsvSource(
